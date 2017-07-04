@@ -42,13 +42,12 @@ public class IMEView extends View {
                     event.getHistoricalX(0, h)/_scale,
                     event.getHistoricalY(0, h)/_scale
             );
-            // TODO: This is broken. Returns a long list of the same key
-            if (_lastPressed.size() == 0 || on != _lastPressed.get(_lastPressed.size() - 1)) {
+            if (_lastPressed.size() == 0 || on.equals(_lastPressed.get(_lastPressed.size() - 1))) {
                 _lastPressed.add(on);
             }
         }
         HexCoordinate on = HexCoordinate.fromCartesian(event.getX(0)/_scale, event.getY(0)/_scale);
-        if (_lastPressed.size() == 0 || on != _lastPressed.get(_lastPressed.size() - 1)) {
+        if (_lastPressed.size() == 0 || on.equals(_lastPressed.get(_lastPressed.size() - 1))) {
             _lastPressed.add(on);
         }
     }
@@ -98,7 +97,6 @@ public class IMEView extends View {
         rect.setColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
 
 //        float sz = (float)Math.min(h / (2.0 * hexrs), w / Math.sqrt(3) / hexqs);
-
 
         // create pathshapes for the hexagons?
         for (HexCoordinate coord : _grid) {
