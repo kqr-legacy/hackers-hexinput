@@ -11,12 +11,17 @@ public class TestingActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_testing);
-        TextView tv = (TextView)findViewById(R.id.textView);
+        TextView tv = (TextView) findViewById(R.id.textView);
+        IMEView imev = (IMEView) findViewById(R.id.keyboardView);
+        imev.setTv(tv);
+
+        /*
         HexGrid hg = new HexGrid(2, 5);
         String str = "";
-        for (Point p : hg) {
-            str += "q = " + p.x + ", r = " + p.y + "\n";
+        for (HexCoordinate p : hg) {
+            str += "q = " + p.q() + ", r = " + p.r() + "\n";
         }
         tv.setText(str);
+        */
     }
 }
