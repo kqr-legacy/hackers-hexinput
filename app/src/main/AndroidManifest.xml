@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.xkqr.testing">
+    package="org.xkqr.hackers_hexinput">
 
     <application
         android:allowBackup="true"
@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".IME"
+            android:name="org.xkqr.hackers_hexinput.IME"
             android:permission="android.permission.BIND_INPUT_METHOD">
             <intent-filter>
                 <action android:name="android.view.InputMethod" />
@@ -21,7 +21,7 @@
                 android:resource="@xml/method" />
         </service>
 
-        <activity android:name=".TestingActivity">
+        <activity android:name="org.xkqr.hackers_hexinput.TestingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
