@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 
+
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.0"
@@ -21,29 +22,38 @@ android {
     }
 }
 
-
-
-task runjml(type: Exec, description: 'run static openjml analysis') {
-    commandLine 'java', '-jar', "${rootDir}/openjml-0.8.16/openjml.jar", '-dir', 'src/main'
-}
-configurations {
-    runjml.extendsFrom build
-}
 project.afterEvaluate {
-    prepareDebugDependencies.finalizedBy('runjml')
-}
+    android.applicationVariants.each { variant ->
+        def verifyTask = "verifyJML${variant.name}"
+        // First create a task to verify this build variant
+        tasks.create(verifyTask, JavaExec) {
+            classpath(files("${rootDir}/openjml-0.8.16/openjml.jar"))
+            classpath(files(android.bootClasspath))
+            //classpath(files(variant.javaCompile.destinationDir.path))
 
-//project.afterEvaluate {
-//    android.applicationVariants.each { variant ->
-//        variant.javaCompiler.doLast {
-//            javaexec {
-//                classpath += files("${rootDir}/openjml-0.8.16/openjml.jar")
-//                classpath += files(project.android.sourceSetsContainer.main.runtimeClassPath)
-//                main = 'org.jmlspecs.openjml.Main'
-//            }
-//        }
-//    }
-//}
+            def sources = ['main/java']
+            sources += files "$buildDir/generated/source/r/${variant.name}"
+            args('-dirs', *sources)
+
+            main = "org.jmlspecs.openjml.Main"
+            /*def openjml = "${rootDir}/openjml-0.8.16/openjml.jar"
+
+            def sources = ['main/java']
+            sources += files "$buildDir/generated/source/r/${variant.name}"
+
+            def classes = files android.bootClasspath
+            //classes += files variant.apkLibraries
+            //classes += files variant.javaCompile.classpath
+            classes += files variant.javaCompile.destinationDir.path
+            def classpath = classes.join ":"
+
+            commandLine('java', '-jar', openjml, '-cp', classpath, '-dirs', *sources)*/
+        }
+
+        // Then we insert it as a mandatory step in the build process
+        variant.javaCompile.dependsOn verifyTask
+    }
+}
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')

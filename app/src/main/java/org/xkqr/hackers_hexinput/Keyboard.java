@@ -9,7 +9,6 @@ public class Keyboard {
     private HexGrid _grid;
     private Map<HexCoordinate, List<String>> _keys;
 
-    // ensures (\forall int )
     public Keyboard() {
         _grid = new HexGrid(7, 6);
         _keys = new HashMap<>();
