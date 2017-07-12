@@ -1,4 +1,9 @@
+import net.ltgt.gradle.errorprone.ErrorProneToolChain
+
 apply plugin: 'com.android.application'
+apply plugin: "net.ltgt.errorprone-base"
+
+configurations.errorprone.resolutionStrategy.force 'com.google.errorprone:error_prone_core:2.0.5'
 
 
 android {
@@ -25,35 +30,58 @@ android {
 project.afterEvaluate {
     android.applicationVariants.each { variant ->
         def verifyTask = "verifyJML${variant.name}"
+
         // First create a task to verify this build variant
         tasks.create(verifyTask, JavaExec) {
+            doFirst {
+                mkdir "${projectDir}/build/generated/openjml/${variant.name}"
+            }
+
+            args("-properties")
+            args("${rootDir}/openjml.properties")
+            args("-logic")
+            args("-AUFNIRA")
+            args("-timeout")
+            args("20")
+            args("-progress")
+            args("-implicit:class")
+            args("-d")
+            args("${projectDir}/build/generated/openjml/${variant.name}")
+            args("-esc")
+            args("-dir")
+            args("${projectDir}/src/proof_utils/java/")
+            args("${projectDir}/src/main/java/org/xkqr/hackers_hexinput/Hexagon.java")
+            args("${projectDir}/src/main/java/org/xkqr/hackers_hexinput/HexCoordinate.java")
+            //args("-dirs")
+            //args("${projectDir}/src/main/java")
+            //args("${buildDir}/generated/source/r/${variant.name}")
+
             classpath(files("${rootDir}/openjml-0.8.16/openjml.jar"))
             classpath(files(android.bootClasspath))
+            classpath(files(variant.javaCompile.classpath))
             //classpath(files(variant.javaCompile.destinationDir.path))
 
-            def sources = ['main/java']
-            sources += files "$buildDir/generated/source/r/${variant.name}"
-            args('-dirs', *sources)
+            //classpath.each{path->println path}
+            //println args
 
+            standardOutput = System.out
+            errorOutput = System.err
             main = "org.jmlspecs.openjml.Main"
-            /*def openjml = "${rootDir}/openjml-0.8.16/openjml.jar"
 
-            def sources = ['main/java']
-            sources += files "$buildDir/generated/source/r/${variant.name}"
-
-            def classes = files android.bootClasspath
-            //classes += files variant.apkLibraries
-            //classes += files variant.javaCompile.classpath
-            classes += files variant.javaCompile.destinationDir.path
-            def classpath = classes.join ":"
-
-            commandLine('java', '-jar', openjml, '-cp', classpath, '-dirs', *sources)*/
+            println commandLine
         }
 
         // Then we insert it as a mandatory step in the build process
         variant.javaCompile.dependsOn verifyTask
     }
 }
+
+/*afterEvaluate {
+  android.applicationVariants.each {
+    it.javaCompile.toolChain ErrorProneToolChain.create(project)
+    it.javaCompile.options.compilerArgs.addAll()
+  }
+}*/
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
